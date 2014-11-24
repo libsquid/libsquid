@@ -1,0 +1,39 @@
+Currently the build system in use is cmake.  The best way to
+build the system is to make a build directory in the location
+of your choice, cd to it, and then run:
+> cmake [-DCMAKE_INSTALL_PREFIX:PATH=/install/path] /path/to/libsquid
+> make
+At this point the library is compiled locally to your build directory.
+There are several utility programs located in the bin/ subdir of your
+build directory.  Most of these programs will give a short usage message
+if run without arguments.  See the documentation for more details.
+
+To perform a system installation at this point, simply do the following.
+> sudo make install
+The default install path is to /usr/local.
+
+To build rpms, debs, and tgz files, simply do the following in your
+build directory:
+> make package
+> make package_source
+The resulting output files will be in the packages/ subdir of your
+build directory.
+
+As an alternate to cmake, there is a generic Makefile included which
+stands a good chance of working because the libsquid library compiles
+without linking to any external libraries except libm.
+
+To build the pysquid Python module, you should just be able to cd
+to the pysquid subdirectory and then run the following:
+> python setup.py build_ext --inplace
+Note that you don't need to have built the libsquid library itself for
+this to work.
+
+After that, the file pysquid.py and _pysquid.so should
+be created.  At this point, you should be able to do the following in
+python:
+
+import sys
+sys.path.append('/path/to/pysquid/directory')
+import pysquid
+
