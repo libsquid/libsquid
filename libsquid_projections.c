@@ -121,11 +121,9 @@ int sph2xyf(int projection, double lon, double lat, double *x, double *y, int *f
 // k=resolution parameter
 //
 int squid_tside(int projection, int k, double cdelt, double *tside) { // cdelt is deg/pix
-  if (projection == HSC) {
-    *tside = sqrt(3/PI)*120.0/(cdelt*pow(2,k));
-  } else {
-    *tside = 90.0/(cdelt*pow(2,k)); // true quadcube projections
-  }
+  // Note: Projection arg not necessary anymore, left in for backward
+  // compatibility with earlier versions.
+  *tside = 90.0/(cdelt*pow(2,k));
   return(0);
 }
 

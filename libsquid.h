@@ -26,10 +26,10 @@
 #ifndef LIBSQUID_H
 #define LIBSQUID_H
 
-#define LIBSQUID_VERSION "0.5.1"
+#define LIBSQUID_VERSION "0.5.2"
 #define LIBSQUID_MAJOR 0
 #define LIBSQUID_MINOR 5
-#define LIBSQUID_AGE 1
+#define LIBSQUID_AGE 2
 #define LIBSQUID_RELEASE ""
 
 #ifdef __cplusplus
