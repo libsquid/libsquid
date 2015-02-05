@@ -26,10 +26,10 @@
 #ifndef LIBSQUID_H
 #define LIBSQUID_H
 
-#define LIBSQUID_VERSION "0.5.2"
+#define LIBSQUID_VERSION "0.5.3"
 #define LIBSQUID_MAJOR 0
 #define LIBSQUID_MINOR 5
-#define LIBSQUID_AGE 2
+#define LIBSQUID_AGE 3
 #define LIBSQUID_RELEASE ""
 
 #ifdef __cplusplus
@@ -110,6 +110,9 @@ enum {
 
 // max number of elements in squid array
 #define ARR_MAX 1000
+
+// max dirname character length
+#define DIRNAME_MAX 1000
 
 // max filename character length
 #define FNAME_MAX 200
