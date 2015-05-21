@@ -18,83 +18,130 @@
 # Copyright 2014 James Wren and Los Alamos National Laboratory
 #
 
-project(LIBSQUID)
 cmake_minimum_required(VERSION 2.8)
 
-# Read libsquid.h and get version and release string
-file(READ "${LIBSQUID_SOURCE_DIR}/libsquid.h" LIBSQUID_H)
-string(FIND "${LIBSQUID_H}" "LIBSQUID_VERSION" LIBSQUID_VERSION_CHECK)
-if (LIBSQUID_VERSION_CHECK EQUAL -1)
-   message(FATAL_ERROR "version number not in libsquid.h")
-endif()
-string(REGEX REPLACE ".*#define LIBSQUID_VERSION[^0-9]*([0-9]+)\\.([0-9]+)\\.([0-9]+).*" 
-	     "\\1.\\2.\\3" LIBSQUID_VERSION_STRING "${LIBSQUID_H}")
-if (LIBSQUID_VERSION_STRING STREQUAL ifdef)
-   message(FATAL_ERROR "version string not set in libsquid.h")
-endif()
-string(FIND "${LIBSQUID_H}" "LIBSQUID_RELEASE" LIBSQUID_RELEASE_CHECK)
-if (LIBSQUID_RELEASE_CHECK EQUAL -1)
-   set(LIBSQUID_RELEASE_STRING "")
-else()
-   string(REGEX REPLACE ".*#define LIBSQUID_RELEASE[^0-9a-zA-Z\\.]*([0-9a-zA-Z\\.\\-]+).*" 
-   	     "\\1" LIBSQUID_RELEASE_STRING "${LIBSQUID_H}")
-   message("LIBSQUID_VERSION_STRING ${LIBSQUID_VERSION_STRING}")
-   if (LIBSQUID_RELEASE_STRING STREQUAL ifdef)
-      set(LIBSQUID_RELEASE_STRING "")
-   endif()
-   message("LIBSQUID_RELEASE_STRING ${LIBSQUID_RELEASE_STRING}")
-endif()
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
+    "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
-# Get list of source and header files
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-file(GLOB LIBSQUID_SOURCES *.c)
-file(GLOB LIBSQUID_HEADERS *.h)
+# Use sensible default for undefined LIB_SUFFIX
+if (NOT DEFINED LIB_SUFFIX)
+  if(NOT (CMAKE_SIZEOF_VOID_P EQUAL 4))
+    set(LIB_SUFFIX 64)
+  endif()
+endif()
+# Force LIB_SUFFIX availability in ccmake
+set(LIB_SUFFIX ${LIB_SUFFIX} CACHE STRING "Library suffix, appended to library path.")
+mark_as_advanced(LIB_SUFFIX)
 
-# Add static and shared library targets
-add_library(libsquid_static STATIC ${LIBSQUID_SOURCES})
-set_target_properties(libsquid_static PROPERTIES OUTPUT_NAME squid)
-add_library(libsquid_shared SHARED ${LIBSQUID_SOURCES})
-set_target_properties(libsquid_shared PROPERTIES 
-			     OUTPUT_NAME squid
-			     SOVERSION ${LIBSQUID_VERSION_STRING})
+# Parse libsquid.h LIBSQUID_VERSION
+file(STRINGS "${CMAKE_SOURCE_DIR}/libsquid.h" LIBSQUID_VERSION_STRING REGEX
+     "^[ \t]*#define[ \t]+LIBSQUID_VERSION[ \t]+\"[0-9]+\\.[0-9]+\\.[0-9]+\"[ \t]*$")
+if (LIBSQUID_VERSION_STRING STREQUAL "")
+  message(FATAL_ERROR "LIBSQUID_VERSION not found in libsquid.h")
+endif()
+string(REGEX REPLACE ".*\"([0-9]+)\\.([0-9]+)\\.([0-9]+)\".*" "\\1.\\2.\\3"
+       LIBSQUID_VERSION_STRING "${LIBSQUID_VERSION_STRING}")
+# Parse libsquid.h LIBSQUID_RELEASE
+file(STRINGS "${CMAKE_SOURCE_DIR}/libsquid.h" LIBSQUID_RELEASE_STRING REGEX
+     "^[ \t]*#define[ \t]+LIBSQUID_RELEASE[ \t]+\"[0-9]+\"[ \t]*$")
+if (LIBSQUID_RELEASE_STRING STREQUAL "")
+  message(FATAL_ERROR "LIBSQUID_RELEASE not found in libsquid.h")
+endif()
+string(REGEX REPLACE ".*\"([0-9]+)\".*" "\\1"
+       LIBSQUID_RELEASE_STRING "${LIBSQUID_RELEASE_STRING}")
+
+# Overall project options
+project(LIBSQUID)
+set(PACKAGE_VERSION "${LIBSQUID_VERSION_STRING}")
+set(LIBSQUID_VERSION "${LIBSQUID_VERSION_STRING}")
+set(LIBSQUID_RELEASE "${LIBSQUID_RELEASE_STRING}")
+
+option(BUILD_SHARED_LIBS "Build shared libraries." ON)
+option(BUILD_STATIC_LIBS "Build static libraries." OFF)
+
+# Build options
+set(LIBS squid)
+set(LIBS_PRIVATE m)
+include_directories(${LIBSQUID_SOURCE_DIR})
+link_directories(${LIBSQUID_BINARY_DIR})
+link_libraries(${LIBS_PRIVATE})
+
+# Additional builds
 add_subdirectory(bin)
 
-install(TARGETS libsquid_shared
-	LIBRARY	DESTINATION lib
-	ARCHIVE	DESTINATION lib
-	COMPONENT libsquid
-)
+# Generate list of source and header files
+file(GLOB LIBSQUID_HEADERS *.h)
+file(GLOB LIBSQUID_SOURCES *.c)
+
+# Define targets and installs
+if (BUILD_SHARED_LIBS)
+  add_library(libsquid_shared SHARED ${LIBSQUID_SOURCES})
+  set_target_properties(libsquid_shared PROPERTIES
+                        OUTPUT_NAME squid
+                        SOVERSION ${LIBSQUID_VERSION_STRING})
+  install(TARGETS libsquid_shared
+          LIBRARY DESTINATION lib${LIB_SUFFIX}
+          RUNTIME DESTINATION lib${LIB_SUFFIX}
+          COMPONENT libsquid)
+endif()
+if (BUILD_STATIC_LIBS)
+  add_library(libsquid_static STATIC ${LIBSQUID_SOURCES})
+  set_target_properties(libsquid_static PROPERTIES
+                        OUTPUT_NAME squid)
+  install(TARGETS libsquid_static
+          ARCHIVE DESTINATION lib${LIB_SUFFIX}
+          COMPONENT libsquid)
+endif()
 install(FILES ${LIBSQUID_HEADERS}
-	DESTINATION include
-	COMPONENT libsquid
-)
-install(TARGETS libsquid_static
-	LIBRARY	DESTINATION lib
-	ARCHIVE	DESTINATION lib
-	COMPONENT libsquid
-)
+        DESTINATION include
+        COMPONENT libsquid-devel)
 
-add_custom_target(libsquid_dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source )
-
+# Define packages
 set(CPACK_PACKAGE_NAME "libsquid")
-set(CPACK_PACKAGE_VERSION ${LIBSQUID_VERSION_STRING})
-if (LIBSQUID_RELEASE_STRING STREQUAL "")
-   set(CPACK_PACKAGE_RELEASE "")
-else()
-   set(CPACK_PACKAGE_RELEASE "~${LIBSQUID_RELEASE_STRING}")
-endif()
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY 
-    "The Spherical-Cube Quad-Tree Unique Index Library (LibSQUID)")
-set(CPACK_PACKAGE_CONTACT "Jim Wren; jwren@lanl.gov")
+set(CPACK_PACKAGE_VERSION ${LIBSQUID_VERSION})
+set(CPACK_PACKAGE_RELEASE ${LIBSQUID_RELEASE})
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Spherical-Cube Quad-Tree Unique Index Library (LibSQUID)")
+set(CPACK_PACKAGE_CONTACT "Jim Wren, jwren@lanl.gov, Los Alamos National Laboratory")
 set(CPACK_PACKAGE_VENDOR ${CPACK_PACKAGE_CONTACT})
-if (NOT LIBSQUID_RELEASE_STRING STREQUAL "")
-   set(CPACK_RPM_PACKAGE_RELEASE "${LIBSQUID_RELEASE_STRING}")
-endif()
 set(CPACK_GENERATOR "RPM" "DEB")
 set(CPACK_SOURCE_GENERATOR "TGZ")
-set(CPACK_SOURCE_IGNORE_FILES "~$;[.]bak$/;[.]swp$;[.]svn$")
+set(CPACK_SOURCE_IGNORE_FILES "~$" "[.]bak$" "[.]swp$" "[.]svn$")
 set(CPACK_PACKAGE_DIRECTORY ${CMAKE_BINARY_DIR}/packages)
 set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}")
-set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}${CPACK_PACKAGE_RELEASE}")
+set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST
+    "${CMAKE_INSTALL_PREFIX}"
+    "${CMAKE_INSTALL_PREFIX}/include"
+    "${CMAKE_INSTALL_PREFIX}/bin"
+    "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
+    "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}/pkgconfig")
+set(CPACK_RPM_PACKAGE_RELEASE ${LIBSQUID_RELEASE})
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}")
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}")
 include(CPack)
+
+# Define package_source
+add_custom_target(libsquid_dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
+
+# Prepare pkg-config
+if (UNIX)
+  # Vars
+  SET(PC_LIBDIR ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX})
+  SET(PC_INCLUDEDIR ${CMAKE_INSTALL_PREFIX}/include)
+  # Libs
+  foreach(libname ${LIBS})
+    set (PC_LIBS_STR ${PC_LIBS_STR} "-l${libname}")
+  endforeach()
+  string(REPLACE ";" " " PC_LIBS_STR "${PC_LIBS_STR}")
+  # Libs.private
+  foreach(libname ${LIBS_PRIVATE})
+    set (PC_LIBS_PRIVATE_STR ${PC_LIBS_PRIVATE_STR} "-l${libname}")
+  endforeach()
+  string(REPLACE ";" " " PC_LIBS_PRIVATE_STR "${PC_LIBS_PRIVATE_STR}")
+  # Replace
+  configure_file(${LIBSQUID_SOURCE_DIR}/libsquid.pc.in
+                 ${LIBSQUID_BINARY_DIR}/libsquid.pc @ONLY)
+  # Install
+  INSTALL(FILES ${LIBSQUID_BINARY_DIR}/libsquid.pc
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}/pkgconfig
+          COMPONENT libsquid-utilities)
+endif()

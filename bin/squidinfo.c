@@ -33,66 +33,66 @@
 #include <libsquid.h>
 
 int main(int argc, char *argv[]) {
-  squid_type squid;
-  squid_type xl,yl;
-  double lon,lat;
-  int i,k,face;
-  double lonc[4],latc[4];
-  int projection;
+   squid_type squid;
+   squid_type xl,yl;
+   double lon,lat;
+   int i,k,face;
+   double lonc[4],latc[4];
+   int projection;
 
-  if (argc != 3) {
-    printf("Example usage...\n");
-    printf("%s projection squid\n",argv[0]);
-    printf("projections: 0=TSC, 1=CSC, 2=QSC, 3=HSC\n");
-    exit(-1);
-  }
-  projection=atoi(argv[1]);
-  if (projection == TSC) {
-    printf("TSC Projection\n");
-  } else if (projection == CSC) {
-    printf("CSC Projection\n");
-  } else if (projection == QSC) {
-    printf("QSC Projection\n");
-  } else if (projection == HSC) {
-    printf("HSC Projection\n");
-  } else {
-    printf("Unknown projection! Using HSC.\n");
-    projection=HSC;
-  }
-  squid=(squid_type)atoll(argv[2]);
+   if (argc != 3) {
+      printf("Example usage...\n");
+      printf("%s projection squid\n",argv[0]);
+      printf("projections: 0=TSC, 1=CSC, 2=QSC, 3=HSC\n");
+      exit(-1);
+   }
+   projection=atoi(argv[1]);
+   if (projection == TSC) {
+      printf("TSC Projection\n");
+   } else if (projection == CSC) {
+      printf("CSC Projection\n");
+   } else if (projection == QSC) {
+      printf("QSC Projection\n");
+   } else if (projection == HSC) {
+      printf("HSC Projection\n");
+   } else {
+      printf("Unknown projection! Using HSC.\n");
+      projection=HSC;
+   }
+   squid=(squid_type)atoll(argv[2]);
 
-  // Make sure squid is valid
-  if (squid_validate(squid) == 0) {
-    fprintf(stderr,"invalid squid argument in %s\n",argv[0]);
-    exit(-1);
-  }
+   // Make sure squid is valid
+   if (squid_validate(squid) == 0) {
+      fprintf(stderr,"invalid squid argument in %s\n",argv[0]);
+      exit(-1);
+   }
 
-  // Get basic squid information
-  if (squid2xyfk(squid,&xl,&yl,&face,&k) == -1) {
-    fprintf(stderr,"squid2xyfk failed in %s\n",argv[0]);
-    exit(-1);
-  }
+   // Get basic squid information
+   if (squid2xyfk(squid,&xl,&yl,&face,&k) == -1) {
+      fprintf(stderr,"squid2xyfk failed in %s\n",argv[0]);
+      exit(-1);
+   }
 
-  // Get squid center
-  if (squid2sph(projection,squid,&lon,&lat) == -1) {
-    fprintf(stderr,"squid2sph failed in %s\n",argv[0]);
-    exit(-1);
-  }
+   // Get squid center
+   if (squid2sph(projection,squid,&lon,&lat) == -1) {
+      fprintf(stderr,"squid2sph failed in %s\n",argv[0]);
+      exit(-1);
+   }
 
-  // Get squid corners
-  if (squid_corners(projection,squid,lonc,latc) == -1) {
-    fprintf(stderr,"squidcorners failed in %s\n",argv[0]);
-    exit(-1);
-  }
+   // Get squid corners
+   if (squid_corners(projection,squid,lonc,latc) == -1) {
+      fprintf(stderr,"squidcorners failed in %s\n",argv[0]);
+      exit(-1);
+   }
 
-  // Print out information
-  printf("SQUID=%ld\n",(long)squid);
-  printf("LEVEL=%d, FACE=%d, X=%ld, Y=%ld\n",k,face,(long)xl,(long)yl);
-  printf("CENTER LON=%.6f LAT=%.6f\n",lon/DD2R,lat/DD2R);
-  for (i=0; i<4; i++) {
-    printf("CORNER %d LON=%.6f LAT=%.6f\n",i,lonc[i]/DD2R,latc[i]/DD2R);
-  }
-    
-  return(0);
+   // Print out information
+   printf("SQUID=%ld\n",(long)squid);
+   printf("LEVEL=%d, FACE=%d, X=%ld, Y=%ld\n",k,face,(long)xl,(long)yl);
+   printf("CENTER LON=%.6f LAT=%.6f\n",lon/DD2R,lat/DD2R);
+   for (i=0; i<4; i++) {
+      printf("CORNER %d LON=%.6f LAT=%.6f\n",i,lonc[i]/DD2R,latc[i]/DD2R);
+   }
+
+   return(0);
 
 }

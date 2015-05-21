@@ -26,11 +26,11 @@
 #ifndef LIBSQUID_H
 #define LIBSQUID_H
 
-#define LIBSQUID_VERSION "0.5.3"
+#define LIBSQUID_VERSION "0.6.0"
 #define LIBSQUID_MAJOR 0
-#define LIBSQUID_MINOR 5
-#define LIBSQUID_AGE 3
-#define LIBSQUID_RELEASE ""
+#define LIBSQUID_MINOR 6
+#define LIBSQUID_PATCH 0
+#define LIBSQUID_RELEASE "1"
 
 #ifdef __cplusplus
 extern "C" {
@@ -140,7 +140,7 @@ void sphdist(double lon1, double lat1, double lon2, double lat2, double *sdist);
 void roty(double *v1, double ang, double *v2);
 void rotz(double *v1, double ang, double *v2);
 void arc_intercept(double r1, double d1, double r2, double d2, double r3, double d3,
-		   double rc, double dc, double *r0, double *d0);
+                   double rc, double dc, double *r0, double *d0);
 int interp_bilinear(double x, double y, double *img, long naxis1, long naxis2, double *outpix);
 double bspline(double x);
 double cubicon(double x);
@@ -177,7 +177,7 @@ int tile_xy2sph(int proj, squid_type squid, double x, double y, squid_type tside
 int tile_sph2xy(int proj, squid_type squid, double lon, double lat, squid_type tside, double *x, double *y);
 int tile_nearest(int proj, squid_type squid, double lon, double lats, double *lonn, double *latn);
 int cone_search(int proj, double lon, double lat, double srad, int kmin, int kmax,
-		long *nfull, squid_type **full_tiles, long *npart, squid_type **part_tiles);
+                long *nfull, squid_type **full_tiles, long *npart, squid_type **part_tiles);
 void quadcube_getface(double lon, double lat, int *face);
 void hsc_getface(double lon, double lat, int *face);
 

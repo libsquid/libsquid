@@ -33,49 +33,49 @@
 #include <libsquid.h>
 
 int main(int argc, char *argv[]) {
-  squid_type squid;
-  squid_type nside;
-  double x,y,lon,lat;
-  int projection;
+   squid_type squid;
+   squid_type nside;
+   double x,y,lon,lat;
+   int projection;
 
-  if (argc != 6) {
-    printf("Example usage...\n");
-    printf("%s projection squid lon lat tside\n",argv[0]);
-    printf("projections: 0=TSC, 1=CSC, 2=QSC, 3=HSC\n");
-    printf("lon,lat in decimal degrees\n");
-    printf("tside is the #pix per side of tile\n");
-    exit(-1);
-  }
-  projection=atoi(argv[1]);
-  if (projection == TSC) {
-    printf("TSC Projection\n");
-  } else if (projection == CSC) {
-    printf("CSC Projection\n");
-  } else if (projection == QSC) {
-    printf("QSC Projection\n");
-  } else if (projection == HSC) {
-    printf("HSC Projection\n");
-  } else {
-    printf("Unknown projection! Using HSC.\n");
-    projection=HSC;
-  }
-  squid=(squid_type)atoll(argv[2]);
-  lon=atof(argv[3]);
-  lat=atof(argv[4]);
-  nside=(squid_type)atoll(argv[5]);
+   if (argc != 6) {
+      printf("Example usage...\n");
+      printf("%s projection squid lon lat tside\n",argv[0]);
+      printf("projections: 0=TSC, 1=CSC, 2=QSC, 3=HSC\n");
+      printf("lon,lat in decimal degrees\n");
+      printf("tside is the #pix per side of tile\n");
+      exit(-1);
+   }
+   projection=atoi(argv[1]);
+   if (projection == TSC) {
+      printf("TSC Projection\n");
+   } else if (projection == CSC) {
+      printf("CSC Projection\n");
+   } else if (projection == QSC) {
+      printf("QSC Projection\n");
+   } else if (projection == HSC) {
+      printf("HSC Projection\n");
+   } else {
+      printf("Unknown projection! Using HSC.\n");
+      projection=HSC;
+   }
+   squid=(squid_type)atoll(argv[2]);
+   lon=atof(argv[3]);
+   lat=atof(argv[4]);
+   nside=(squid_type)atoll(argv[5]);
 
-  
-  // Make sure squid is valid
-  if (squid_validate(squid) == 0) {
-    fprintf(stderr,"invalid squid argument in %s\n",argv[0]);
-    exit(-1);
-  }
 
-  lon=lon*PI/180.0;
-  lat=lat*PI/180.0;
-  tile_sph2xy(projection,squid,lon,lat,nside,&x,&y);
+   // Make sure squid is valid
+   if (squid_validate(squid) == 0) {
+      fprintf(stderr,"invalid squid argument in %s\n",argv[0]);
+      exit(-1);
+   }
 
-  printf("x=%.5f y=%.5f\n",x,y);
-  return(0);
+   lon=lon*PI/180.0;
+   lat=lat*PI/180.0;
+   tile_sph2xy(projection,squid,lon,lat,nside,&x,&y);
+
+   printf("x=%.5f y=%.5f\n",x,y);
+   return(0);
 
 }

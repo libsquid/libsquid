@@ -33,41 +33,41 @@
 #include <libsquid.h>
 
 int main(int argc, char *argv[]) {
-  squid_type squid;
-  int k;
-  double lon,lat;
-  int projection;
+   squid_type squid;
+   int k;
+   double lon,lat;
+   int projection;
 
-  if (argc != 5) {
-    printf("Example usage...\n");
-    printf("%s projection lon lat k\n",argv[0]);
-    printf("projections: 0=TSC, 1=CSC, 2=QSC, 3=HSC\n");
-    printf("lon,lat are in decimal degrees.\n");
-    printf("k is squid resolution parameter.\n");
-    exit(-1);
-  }
-  projection=atoi(argv[1]);
-  if (projection == TSC) {
-    printf("TSC Projection\n");
-  } else if (projection == CSC) {
-    printf("CSC Projection\n");
-  } else if (projection == QSC) {
-    printf("QSC Projection\n");
-  } else if (projection == HSC) {
-    printf("HSC Projection\n");
-  } else {
-    printf("Unknown projection! Using HSC.\n");
-    projection=HSC;
-  }
-  lon=atof(argv[2]);
-  lat=atof(argv[3]);
-  k=atoi(argv[4]);
+   if (argc != 5) {
+      printf("Example usage...\n");
+      printf("%s projection lon lat k\n",argv[0]);
+      printf("projections: 0=TSC, 1=CSC, 2=QSC, 3=HSC\n");
+      printf("lon,lat are in decimal degrees.\n");
+      printf("k is squid resolution parameter.\n");
+      exit(-1);
+   }
+   projection=atoi(argv[1]);
+   if (projection == TSC) {
+      printf("TSC Projection\n");
+   } else if (projection == CSC) {
+      printf("CSC Projection\n");
+   } else if (projection == QSC) {
+      printf("QSC Projection\n");
+   } else if (projection == HSC) {
+      printf("HSC Projection\n");
+   } else {
+      printf("Unknown projection! Using HSC.\n");
+      projection=HSC;
+   }
+   lon=atof(argv[2]);
+   lat=atof(argv[3]);
+   k=atoi(argv[4]);
 
-  lon=lon*PI/180.0;
-  lat=lat*PI/180.0;
-  sph2squid(projection,lon,lat,k,&squid);
+   lon=lon*PI/180.0;
+   lat=lat*PI/180.0;
+   sph2squid(projection,lon,lat,k,&squid);
 
-  printf("squid=%ld\n",(long)squid);
-  return(0);
+   printf("squid=%ld\n",(long)squid);
+   return(0);
 
 }

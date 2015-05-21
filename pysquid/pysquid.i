@@ -26,8 +26,8 @@
    } else {
       if (!PyTuple_Check($result)) {
          PyObject *o2 = $result;
-	 $result = PyTuple_New(1);
-	 PyTuple_SetItem($result,0,o2);
+         $result = PyTuple_New(1);
+         PyTuple_SetItem($result,0,o2);
       }
       o3 = PyTuple_New(1);
       PyTuple_SetItem(o3,0,o);

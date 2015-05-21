@@ -34,62 +34,62 @@
 #include <libsquid.h>
 
 int main(int argc, char *argv[]) {
-  double lon,lat,rad;
-  long nfull, npart;
-  squid_type *full_tiles, *part_tiles;
-  long i;
-  int kmin, kmax;
-  int projection;
+   double lon,lat,rad;
+   long nfull, npart;
+   squid_type *full_tiles, *part_tiles;
+   long i;
+   int kmin, kmax;
+   int projection;
 
-  if (argc != 7) {
-    printf("Usage...\n");
-    printf("%s projection lon lat rad kmin kmax\n",argv[0]);
-    printf("lon,lat,rad in decimal degrees\n");
-    printf("projections: 0=TSC, 1=CSC, 2=QSC, 3=HSC\n");
-    printf("kmin,kmax are the max and min squid resolutions\n");
-    exit(-1);
-  }
-  projection=atoi(argv[1]);
-  if (projection == TSC) {
-    printf("TSC Projection\n");
-  } else if (projection == CSC) {
-    printf("CSC Projection\n");
-  } else if (projection == QSC) {
-    printf("QSC Projection\n");
-  } else if (projection == HSC) {
-    printf("HSC Projection\n");
-  } else {
-    printf("Unknown projection! Using HSC.\n");
-    projection=HSC;
-  }
-  lon=atof(argv[2]);
-  lat=atof(argv[3]);
-  rad=atof(argv[4]);
-  kmin=atoi(argv[5]);
-  kmax=atoi(argv[6]);
+   if (argc != 7) {
+      printf("Usage...\n");
+      printf("%s projection lon lat rad kmin kmax\n",argv[0]);
+      printf("lon,lat,rad in decimal degrees\n");
+      printf("projections: 0=TSC, 1=CSC, 2=QSC, 3=HSC\n");
+      printf("kmin,kmax are the max and min squid resolutions\n");
+      exit(-1);
+   }
+   projection=atoi(argv[1]);
+   if (projection == TSC) {
+      printf("TSC Projection\n");
+   } else if (projection == CSC) {
+      printf("CSC Projection\n");
+   } else if (projection == QSC) {
+      printf("QSC Projection\n");
+   } else if (projection == HSC) {
+      printf("HSC Projection\n");
+   } else {
+      printf("Unknown projection! Using HSC.\n");
+      projection=HSC;
+   }
+   lon=atof(argv[2]);
+   lat=atof(argv[3]);
+   rad=atof(argv[4]);
+   kmin=atoi(argv[5]);
+   kmax=atoi(argv[6]);
 
-  lon=lon*DD2R;
-  lat=lat*DD2R;
-  rad=rad*DD2R;
+   lon=lon*DD2R;
+   lat=lat*DD2R;
+   rad=rad*DD2R;
 
-  if (cone_search(projection, lon, lat, rad, kmin, kmax, 
-		  &nfull, &full_tiles, &npart, &part_tiles) < 0) {
-    fprintf(stderr,"cone_search failed in %s\n",argv[0]);
-    exit(-1);
-  }
+   if (cone_search(projection, lon, lat, rad, kmin, kmax, 
+            &nfull, &full_tiles, &npart, &part_tiles) < 0) {
+      fprintf(stderr,"cone_search failed in %s\n",argv[0]);
+      exit(-1);
+   }
 
-  printf("%ld full_tiles:\n",nfull);
-  for (i=0; i<nfull; i++) {
-    printf("%ld ",(long)full_tiles[i]);
-  }
-  printf("\n");
+   printf("%ld full_tiles:\n",nfull);
+   for (i=0; i<nfull; i++) {
+      printf("%ld ",(long)full_tiles[i]);
+   }
+   printf("\n");
 
-  printf("%ld part_tiles:\n",npart);
-  for (i=0; i<npart; i++) {
-    printf("%ld ",(long)part_tiles[i]);
-  }
-  printf("\n");
+   printf("%ld part_tiles:\n",npart);
+   for (i=0; i<npart; i++) {
+      printf("%ld ",(long)part_tiles[i]);
+   }
+   printf("\n");
 
-  return(0);
+   return(0);
 
 }

@@ -19,12 +19,18 @@
 #
 
 cmake_minimum_required(VERSION 2.8)
-file(GLOB LIBSQUID_EXE RELATIVE ${LIBSQUID_SOURCE_DIR}/bin *.c)
-include_directories(${LIBSQUID_SOURCE_DIR})
-link_directories(${LIBSQUID_BINARY_DIR})
-link_libraries(squid m)
 
-foreach(infile ${LIBSQUID_EXE})
-   string(REPLACE ".c" "" outfile ${infile})
-   add_executable(${outfile} ${infile})
-endforeach(infile)
+# Generate list of source files
+file(GLOB LIBSQUID_EXE RELATIVE ${LIBSQUID_SOURCE_DIR}/bin *.c)
+
+# Build options
+link_libraries(${LIBS})
+
+# Define targets and installs
+foreach(INFILE ${LIBSQUID_EXE})
+  string(REPLACE ".c" "" OUTFILE ${INFILE})
+  add_executable(${OUTFILE} ${INFILE})
+  install(TARGETS ${OUTFILE}
+          RUNTIME DESTINATION bin
+          COMPONENT libsquid)
+endforeach(INFILE)
