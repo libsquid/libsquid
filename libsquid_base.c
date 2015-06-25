@@ -392,6 +392,12 @@ int tile_nearest(int projection, squid_type squid, double lons, double lats, dou
       return(-1);
    }
    //printf("Initial solution lonn=%.5f latn=%.5f\n",lonn0,latn0);
+   sphdist(rc0,dc0,lonn0,latn0,&sdist);
+   if (sdist < 1e-6) {
+      *lonn=rc0;
+      *latn=dc0;
+      return(0);
+   }
 
    // Now do iteration.  If arc points lie on a Cartesian plane, then
    // the above solution is exact and the iteration should exit after
@@ -475,7 +481,7 @@ int tile_nearest(int projection, squid_type squid, double lons, double lats, dou
       xt0=xt1;
       yt0=yt1;
    }
-   sphdist(lonni,latni,lonn0,latn0,&initial_err);
+   //sphdist(lonni,latni,lonn0,latn0,&initial_err);
    //printf("initial error=%.30f arcseconds\n",3600.0*initial_err/DD2R);
    //printf("lonn=%.5f latn=%.5f\n",lonn0/DD2R,latn0/DD2R);
    *lonn=lonn0;
@@ -662,6 +668,16 @@ int cone_search(int projection, double lon, double lat, double srad, int kmin, i
                   part_tiles1[npart1-1]=squid11;
                   continue;
                }
+            } else if (ccount > 0) {
+               // at least one corner is in, so append to part_tiles[]
+               npart1++;
+               part_tiles1=realloc(part_tiles1, npart1*sizeof(squid_type));
+               if (part_tiles1 == NULL) {
+                  fprintf(stderr,"realloc failed in cone_search, %s\n",strerror(errno));
+                  return(-1);
+               }
+               part_tiles1[npart1-1]=squid11;
+               continue;
             }
             // Next check if search point is within tile
             if (squid11 == squid0) {
